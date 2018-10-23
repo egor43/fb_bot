@@ -31,7 +31,9 @@ def recieve_message():
     if not sender:
         print('Error! Not field "sender" in incoming request')
     global last_sender_id
-    last_sender_id = sender.get('id')
+    if sender.get('id') != last_sender_id:
+        last_sender_id = sender.get('id')
+        send_message("Hello! You are welcomed by the bot.")
     if not last_sender_id:
         print('Error! Could not get sender id.')
     return 'Ok'
