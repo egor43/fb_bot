@@ -19,6 +19,11 @@ client_secret = None
 
 @app.route('/entry/<redirect_uri>', methods=['GET'])
 def entry(redirect_uri):
+    """
+    Getting a link to the login request page via facebook
+    :param redirect_uri: webhook uri
+    :return: link to the login request page via facebook
+    """
     redirect_uri = decode_parameter(redirect_uri)
     if not redirect_uri:
         return "Error! Redirect uri is none."
@@ -31,6 +36,11 @@ def entry(redirect_uri):
 
 @app.route('/setappid/<app_id>', methods=['GET'])
 def set_app_id(app_id):
+    """
+    Sets the client identifier
+    :param app_id: client identifier
+    :return: set client identifier
+    """
     app_id = decode_parameter(app_id)
     if not app_id:
         return "Error! Application identifier is none."
@@ -41,6 +51,11 @@ def set_app_id(app_id):
 
 @app.route('/setclientsecret/<client_secret_str>', methods=['GET'])
 def set_client_secret(client_secret_str):
+    """
+    Sets the client secret
+    :param client_secret_str: client secret
+    :return: set client secret
+    """
     client_secret_str = decode_parameter(client_secret_str)
     if not client_secret_str:
         return "Error! Application identifier is none."
@@ -49,9 +64,12 @@ def set_client_secret(client_secret_str):
     client_secret = client_secret_str
     return client_secret
 
-
 @app.route('/connect', methods=['GET', 'POST'])
 def connect_user():
+    """
+    Processing Facebook login request
+    :return: Error
+    """
     return "Error"
 
 @app.route('/webhook', methods=['POST'])
