@@ -16,21 +16,28 @@ last_sender_id = None
 app_identifier = None
 # Client secret
 client_secret = None
+# Redirect uri
+redirect_uri = None
 
-@app.route('/entry/<redirect_uri>', methods=['GET'])
-def entry(redirect_uri):
+@app.route('/entry/<redirect>', methods=['GET'])
+def entry(redirect):
     """
     Getting a link to the login request page via facebook
-    :param redirect_uri: webhook uri
+    :param redirect: webhook uri
     :return: link to the login request page via facebook
     """
-    redirect_uri = decode_parameter(redirect_uri)
-    if not redirect_uri:
+    redirect = decode_parameter(redirect)
+    if not redirect:
         return "Error! Redirect uri is none."
-
-    login_url = 'https://www.facebook.com/v3.2/dialog/oauth?client_id={app_id}' \
+    if not app_identifier:
+        return "Error! App identifier is none."
+    global redirect_uri
+    redirect_uri = redirect
+    login_url = 'https://www.facebook.com/v3.2/dialog/oauth?' \
+                'client_id={app_id}' \
                 '&redirect_uri={redirect_uri}' \
-                '&state={state_param}'
+                '&state={state_param}' \
+                '&scope=manage_pages,read_page_mailboxes,pages_messaging,pages_messaging_subscriptions'
     login_url = login_url.format(app_id=app_identifier, redirect_uri=redirect_uri, state_param="my_state")
     return login_url
 
@@ -70,7 +77,36 @@ def connect_user():
     Processing Facebook login request
     :return: Error
     """
-    return "Error"
+    code = request.args.get("code", None)
+    if not code:
+        print(str(request.args))
+        return "Error! Parameter code is none."
+    if not redirect_uri:
+        return "Error! Redirect uri is none."
+    if not app_identifier:
+        return "Error! App identifier is none."
+    if not client_secret:
+        return "Error! Client secret is none."
+
+    header = {'Content-Type': 'application/json;charset=utf-8'}
+    request_address = 'https://graph.facebook.com/v3.2/oauth/access_token?' \
+                      'client_id={app_id}' \
+                      '&redirect_uri={redirect_uri}' \
+                      '&client_secret={client_secret}' \
+                      '&code={code}'
+    request_address = request_address.format(app_id=app_identifier,
+                                             redirect_uri=redirect_uri,
+                                             client_secret=client_secret,
+                                             code=code)
+    response = requests.get(request_address, headers=header)
+    json_data = json.loads(response.text)
+    access_token = json_data.get("access_token", None)
+    if not access_token:
+        print(str(response.text))
+        return "Error! Access token is none."
+    global token
+    token = access_token
+    return response.text
 
 @app.route('/webhook', methods=['POST'])
 def recieve_message():
