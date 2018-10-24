@@ -39,6 +39,16 @@ def set_app_id(app_id):
     app_identifier = app_id
     return app_identifier
 
+@app.route('/setclientsecret/<client_secret_str>', methods=['GET'])
+def set_client_secret(client_secret_str):
+    client_secret_str = decode_parameter(client_secret_str)
+    if not client_secret_str:
+        return "Error! Application identifier is none."
+
+    global client_secret
+    client_secret = client_secret_str
+    return client_secret
+
 
 @app.route('/connect', methods=['GET', 'POST'])
 def connect_user():
