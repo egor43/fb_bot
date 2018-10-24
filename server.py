@@ -12,6 +12,37 @@ app = Flask(__name__)
 token = None
 # Last chat's identifier
 last_sender_id = None
+# App identifier
+app_identifier = None
+# Client secret
+client_secret = None
+
+@app.route('/entry/<redirect_uri>', methods=['GET'])
+def entry(redirect_uri):
+    redirect_uri = decode_parameter(redirect_uri)
+    if not redirect_uri:
+        return "Error! Redirect uri is none."
+
+    login_url = 'https://www.facebook.com/v3.2/dialog/oauth?client_id={app_id}' \
+                '&redirect_uri={redirect_uri}' \
+                '&state={state_param}'
+    login_url = login_url.format(app_id=app_identifier, redirect_uri=redirect_uri, state_param="my_state")
+    return login_url
+
+@app.route('/setappid/<app_id>', methods=['GET'])
+def set_app_id(app_id):
+    app_id = decode_parameter(app_id)
+    if not app_id:
+        return "Error! Application identifier is none."
+
+    global app_identifier
+    app_identifier = app_id
+    return app_identifier
+
+
+@app.route('/connect', methods=['GET', 'POST'])
+def connect_user():
+    return "Error"
 
 @app.route('/webhook', methods=['POST'])
 def recieve_message():
