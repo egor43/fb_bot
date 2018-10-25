@@ -8,8 +8,10 @@ import requests
 
 app = Flask(__name__)
 
-# Group's token
+# User token
 token = None
+# Page token
+page_token = None
 # Last chat's identifier
 last_sender_id = None
 # App identifier
@@ -18,6 +20,11 @@ app_identifier = None
 client_secret = None
 # Redirect uri
 redirect_uri = None
+
+@app.route('/start', methods=['GET'])
+def set_default_settings():
+    global app_identifier, client_secret
+    return "Default settings applied"
 
 @app.route('/entry/<redirect>', methods=['GET'])
 def entry(redirect):
@@ -108,6 +115,23 @@ def connect_user():
     token = access_token
     return response.text
 
+@app.route('/getpagetoken/<page_id>', methods=["GET"])
+def get_page_token(page_id):
+    header = {'Content-Type': 'application/json;charset=utf-8'}
+    request_address = 'https://graph.facebook.com/v3.2/{page_id}?fields=access_token&access_token={token}'
+    request_address = request_address.format(page_id=page_id, token=token)
+    response = requests.get(request_address, headers=header)
+    json_data = json.loads(response.text)
+    access_token = json_data.get("access_token", None)
+    if not access_token:
+        print(str(response.text))
+        return "Error! Access token is none."
+    global page_token
+    page_token = access_token
+    return response.text
+
+
+
 @app.route('/webhook', methods=['POST'])
 def recieve_message():
     """
@@ -119,18 +143,23 @@ def recieve_message():
     entry = json_data.get('entry')
     if not entry:
         print('Error! Not field "entry" in incoming request')
+        return "Ok"
     messaging = entry[0].get('messaging')
     if not messaging:
         print('Error! Not field "messaging" in incoming request')
+        return "Ok"
     sender = messaging[0].get('sender')
     if not sender:
         print('Error! Not field "sender" in incoming request')
+        return "Ok"
     global last_sender_id
-    if sender.get('id') != last_sender_id:
-        last_sender_id = sender.get('id')
-        send_message("Hello! You are welcomed by the bot.")
+    old_sender = last_sender_id
+    last_sender_id = sender.get('id')
     if not last_sender_id:
         print('Error! Could not get sender id.')
+        return "Ok"
+    if old_sender != last_sender_id:
+        send_message("Hello! You are welcomed by the bot.")
     return 'Ok'
 
 @app.route('/webhook', methods=['GET', 'POST'])
