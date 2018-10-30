@@ -82,19 +82,19 @@ def set_app_id(app_id):
     app_identifier = app_id
     return app_identifier
 
-@app.route('/setclientsecret/<client_secret_str>', methods=['GET'])
-def set_client_secret(client_secret_str):
+@app.route('/setapplicationsecret/<application_secret>', methods=['GET'])
+def set_application_secret(application_secret):
     """
     Sets the client secret
-    :param client_secret_str: client secret
+    :param application_secret: client secret
     :return: setted client secret
     """
-    client_secret_str = decode_parameter(client_secret_str)
-    if not client_secret_str:
+    application_secret = decode_parameter(application_secret)
+    if not application_secret:
         return "Error! Application identifier is none."
 
     global app_secret
-    app_secret = client_secret_str
+    app_secret = application_secret
     return app_secret
 
 @app.route('/connect', methods=['GET', 'POST'])
@@ -122,7 +122,7 @@ def connect_user():
                       '&code={code}'
     request_address = request_address.format(app_id=app_identifier,
                                              redirect_uri=redirect_uri,
-                                             client_secret=app_secret,
+                                             app_secret=app_secret,
                                              code=code)
     response = requests.get(request_address, headers=header)
     json_data = json.loads(response.text)
@@ -172,10 +172,9 @@ def get_app_token():
                       '&redirect_uri={redirect_uri}' \
                       '&grant_type=client_credentials'
     request_address = request_address.format(app_id=app_identifier,
-                                             client_secret=app_secret,
+                                             app_secret=app_secret,
                                              redirect_uri="none")
     response = requests.get(request_address, headers=header)
-    print(response.text)
     json_data = json.loads(response.text)
     access_token = json_data.get("access_token", None)
     if not access_token:
