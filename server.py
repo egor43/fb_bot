@@ -118,7 +118,7 @@ def connect_user():
     request_address = 'https://graph.facebook.com/v3.2/oauth/access_token?' \
                       'client_id={app_id}' \
                       '&redirect_uri={redirect_uri}' \
-                      '&app_secret={app_secret}' \
+                      '&client_secret={app_secret}' \
                       '&code={code}'
     request_address = request_address.format(app_id=app_identifier,
                                              redirect_uri=redirect_uri,
@@ -168,15 +168,17 @@ def get_app_token():
     header = {'Content-Type': 'application/json;charset=utf-8'}
     request_address = 'https://graph.facebook.com/oauth/access_token' \
                       '?client_id={app_id}' \
-                      '&app_secret={app_secret}' \
+                      '&client_secret={app_secret}' \
                       '&redirect_uri={redirect_uri}' \
                       '&grant_type=client_credentials'
     request_address = request_address.format(app_id=app_identifier,
                                              app_secret=app_secret,
                                              redirect_uri="none")
     response = requests.get(request_address, headers=header)
+    print(str(request_address))
     json_data = json.loads(response.text)
     access_token = json_data.get("access_token", None)
+
     if not access_token:
         return "Error! Access token is none."
     global app_token
