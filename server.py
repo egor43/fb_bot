@@ -221,9 +221,9 @@ def subscribe_page():
     if not page_identifier:
         return "Error! No page identifier."
     header = {'Content-Type': 'application/json;charset=utf-8'}
-    request_address = 'https://graph.facebook.com/v2.11/{page_id}/subscribed_apps'
-    request_address = request_address.format(page_id=page_identifier)
-    parameter = 'access_token={page_token}'.format(page_token=page_token)
+    request_address = 'https://graph.facebook.com/v3.2/{page_id}/subscribed_apps?access_token={page_token}'
+    request_address = request_address.format(page_id=page_identifier, page_token=page_token)
+    parameter = 'subscribed_fields=conversations%2Cfeed%2Cmessages'
     response = requests.post(request_address, data=parameter, headers=header)
     print(str(response))
     return response.text
