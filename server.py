@@ -294,6 +294,8 @@ def get_userinfo():
     Getting last user info
     :return: last user info
     """
+    if not last_sender_id:
+        return "Error! No last sender."
     header = {'Content-Type': 'application/json;charset=utf-8'}
     request_address = 'https://graph.facebook.com/{psid}?access_token={token}'.format(psid=last_sender_id, token=page_token)
     response = requests.get(request_address, headers=header)
