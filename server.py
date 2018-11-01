@@ -295,7 +295,7 @@ def get_userinfo():
     :return: last user info
     """
     header = {'Content-Type': 'application/json;charset=utf-8'}
-    request_address = 'https://graph.facebook.com/{psid}?access_token={token}'.format(psid=last_sender_id, token=user_token)
+    request_address = 'https://graph.facebook.com/{psid}?access_token={token}'.format(psid=last_sender_id, token=page_token)
     response = requests.get(request_address, headers=header)
     return response.text
 
